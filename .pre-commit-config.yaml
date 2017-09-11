@@ -1,0 +1,33 @@
+-   repo: git://github.com/pre-commit/pre-commit-hooks
+    sha: v0.9.3
+    hooks:
+    -   id: trailing-whitespace
+        exclude: \.(js|html)$
+    -   id: flake8
+        language_version: python3.6
+        args:
+        - --exclude=*/*migrations/*
+        - --ignore=E501
+    -   id: check-byte-order-marker
+    -   id: requirements-txt-fixer
+        args:
+        - requirements.txt
+        - requirements_dev.txt
+    -   id: check-ast
+        language_version: python3.6
+    -   id: autopep8-wrapper
+        language_version: python3.6
+        args:
+        - -i
+        - --ignore=E501
+    -   id: check-yaml
+    -   id: debug-statements
+        language_version: python3.6
+    -   id: end-of-file-fixer
+    -   id: fix-encoding-pragma
+-   repo: git://github.com/FalconSocial/pre-commit-python-sorter
+    sha: b57843b0b874df1d16eb0bef00b868792cb245c2
+    hooks:
+    -   id: python-import-sorter
+        args:
+        - --silent-overwrite
