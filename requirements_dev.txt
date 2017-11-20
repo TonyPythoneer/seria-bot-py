@@ -1,0 +1,3 @@
+-r requirements.txt
+flask8==3.5.0
+pylint==1.7.2
