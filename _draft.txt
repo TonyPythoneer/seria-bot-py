@@ -1,0 +1,78 @@
+class Action:
+  channels = None
+  roles  = None
+
+  parser = Noe
+
+  fields = {'weekday': {}}
+
+  def __init__(self, client, message):
+    self.client  = client
+    self.message = message
+
+    sef.optarg = optarg
+
+  def add_parser(self):
+    self.parser.add()
+
+  def parse_args(self):
+    opt, _ = self.parser.args([])
+    opt_dict = opt.__dict__
+    return opt_dict
+
+  def run(self, weekday, *args, **kwargs):
+    worksheet = spreadsheet.get(weekday)
+    YELLOW = (255, 255, 0, 0)
+     enabled_team_indexs = [ cellname for cell in worksheet.get_cell(...) if cell.color == YELLOW]
+    repeat_players_in_team = []
+    repeat_characters_in_groups = {}
+    for index in enabled_team_indexes:
+        cellrange = team_mapping[index]
+        team_matrix = worksheet.range(cellrange, returas='matrix')
+        characters = team_matrix.to_one_dim 降低維度
+        for character in characters:
+            playername = character.split(',', 1)[0]
+            playername
+
+
+  def validjoin...
+    YELLOW = (255, 255, 0, 0)
+     [cell for cell in worksheet.get_cell(...) if cell.color == YELLOW]
+    worksheet
+
+  def execute(self, message):
+    is_allowed_channel = check_channel(message)
+    if not is_allowed_channel:
+       return
+
+    is_allowed_role = check_role(message)
+    if not is_allowed_role:
+      return
+
+    parsed_kwargs = self.parse_args()
+    sel.run(**parsed_kwargs)
+
+    result_dict
+
+cmdgroups = {
+  anton:{
+    validsheet: ...
+    finishsheet: ...
+    listmygroup: ...
+    iamok: ...
+    callmembers: ...
+  }
+  discord: {
+    getuserid: ...
+  }
+  help: ...
+}
+
+# seria antion validsheet
+_ , parentcmd, subcmd = content.split(' ', 3)
+
+if parentcmd not in cmdgroups:
+  return
+
+cmd = cmdgroups[parentcmd]
+patterns_action_tuple = cmdgroups[subcmd] if isinstance(cmd, dict) else cmd
