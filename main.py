@@ -84,8 +84,16 @@ class SeriaBot(DiscordClient):
         self.discord_home_channel = self.discord_server.get_channel(config.DISCORD_HOME_CHANNEL_ID)
         self.discord_bot_channel = self.discord_server.get_channel(config.DISCORD_BOT_CHANNEL_ID)
 
-        author = await self.get_user_info(config.DISCORD_AUTHOR_USER_ID)
+        author = await self.get_user_info(config.DISCORD_BOT_AUTHOR_USER_ID)
         await self.start_private_message(author)
+
+        # role log
+        content = ''
+        for role in self.discord_server.roles:
+            content += f'{role.id}: {role.name}, {role.permissions}\n'
+        await self.send_message(author, content)
+
+        # bot log
         content = f'賽麗雅於 {get_current_time()} 發佈囉！\n'
         content += f'連線 discord servers: {str(list(self.servers))}\n'
         content += f'連線 discord server: {self.discord_server.name}\n'

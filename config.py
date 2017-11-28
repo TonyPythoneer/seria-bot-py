@@ -67,7 +67,7 @@ DISCORD_TOKEN = os.environ.get('DISCORD_TOKEN')
 DISCORD_SERVER_ID = os.environ.get('DISCORD_SERVER_ID')
 DISCORD_HOME_CHANNEL_ID = os.environ.get('DISCORD_HOME_CHANNEL_ID')
 DISCORD_BOT_CHANNEL_ID = os.environ.get('DISCORD_BOT_CHANNEL_ID')
-DISCORD_AUTHOR_USER_ID = os.environ.get('DISCORD_AUTHOR_USER_ID')
+DISCORD_BOT_AUTHOR_USER_ID = os.environ.get('DISCORD_BOT_AUTHOR_USER_ID')
 
 # oauth2client config
 # ------------------------------------------------------------------------------
