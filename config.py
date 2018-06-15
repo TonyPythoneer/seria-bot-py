@@ -4,6 +4,11 @@ import base64
 import json
 import os
 
+if os.getenv('PY_ENV') == 'local':
+    from dotenv import load_dotenv
+    load_dotenv(verbose=True)
+
+
 # general
 # ------------------------------------------------------------------------------
 ENABLE_APP = ast.literal_eval(os.environ.get('ENABLE_APP', 'True'))
