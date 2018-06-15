@@ -9,6 +9,7 @@ import config
 import numpy as np
 import pandas as pd
 import pytz
+from constants import WorkSheetType
 from datastore import roster_redis_db
 from discord import Channel
 from discord import Client as DiscordClient
@@ -105,7 +106,7 @@ class SeriaBot(DiscordClient):
         if content == 'seria update roster':
             await self.send_message(message.channel, '開始紀錄總表')
 
-            worksheet = spreadsheet.worksheet_by_title(config.WorkSheetType.PlayerRoster)
+            worksheet = spreadsheet.worksheet_by_title(WorkSheetType.PLAYER_ROSTER)
             roster_matrix = worksheet.range('A3:D', returnas='matrix')
 
             df = pd.DataFrame(roster_matrix,
@@ -133,9 +134,9 @@ class SeriaBot(DiscordClient):
 
             weekday, group_number = cmd_args[3], int(cmd_args[4])
             weekday_mapping = {
-                'wed': config.WorkSheetType.AntonRaidWed,
-                'sat': config.WorkSheetType.AntonRaidSat,
-                'sun': config.WorkSheetType.AntonRaidSun}
+                'wed': WorkSheetType.ANTON_RAID_WED,
+                'sat': WorkSheetType.ANTON_RAID_SAT,
+                'sun': WorkSheetType.ANTON_RAID_SUN}
             if weekday not in weekday_mapping and not (1 <= group_number <= 16):
                 await self.send_message(message.channel, '指令錯誤')
                 return
@@ -188,9 +189,9 @@ class SeriaBot(DiscordClient):
 
             weekday = cmd_args[3]
             weekday_mapping = {
-                'wed': config.WorkSheetType.AntonRaidWed,
-                'sat': config.WorkSheetType.AntonRaidSat,
-                'sun': config.WorkSheetType.AntonRaidSun}
+                'wed': WorkSheetType.ANTON_RAID_WED,
+                'sat': WorkSheetType.ANTON_RAID_SAT,
+                'sun': WorkSheetType.ANTON_RAID_SUN}
             if weekday not in weekday_mapping:
                 return await self.send_message(message.channel, '指令錯誤')
 

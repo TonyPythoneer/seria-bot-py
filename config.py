@@ -58,13 +58,6 @@ GROUP_INFO_SEQUENCE = (
 )  # (group_number, group_number_cell, group_cell_range)
 
 
-class WorkSheetType(object):
-    AntonRaidWed = u'出團確認(三)'
-    AntonRaidSat = u'出團確認(六)'
-    AntonRaidSun = u'出團確認(日)'
-    PlayerRoster = u'總表'
-
-
 # for discord
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 DISCORD_SERIA_LOG_CHANNEL_ID = os.getenv('DISCORD_SERIA_LOG_CHANNEL_ID')
