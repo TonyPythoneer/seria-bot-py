@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import ast
 import base64
 import json
 import os
@@ -11,7 +10,6 @@ if os.getenv('PY_ENV') == 'local':
 
 # general
 # ------------------------------------------------------------------------------
-ENABLE_APP = ast.literal_eval(os.environ.get('ENABLE_APP', 'True'))
 
 '''
 import re
@@ -68,17 +66,13 @@ class WorkSheetType(object):
 
 
 # for discord
-DISCORD_TOKEN = os.environ.get('DISCORD_TOKEN')
-DISCORD_SERVER_ID = os.environ.get('DISCORD_SERVER_ID')
-DISCORD_HOME_CHANNEL_ID = os.environ.get('DISCORD_HOME_CHANNEL_ID')
-DISCORD_BOT_CHANNEL_ID = os.environ.get('DISCORD_BOT_CHANNEL_ID')
-DISCORD_BOT_AUTHOR_USER_ID = os.environ.get('DISCORD_BOT_AUTHOR_USER_ID')
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 DISCORD_SERIA_LOG_CHANNEL_ID = os.getenv('DISCORD_SERIA_LOG_CHANNEL_ID')
 
 # oauth2client config
 # ------------------------------------------------------------------------------
 # see: http://oauth2client.readthedocs.io/en/latest/index.html
-GOOGLE_SERVICE_ACCOUNT_KEY_BASE64 = os.environ.get('GOOGLE_SERVICE_ACCOUNT_KEY_BASE64')
+GOOGLE_SERVICE_ACCOUNT_KEY_BASE64 = os.getenv('GOOGLE_SERVICE_ACCOUNT_KEY_BASE64')
 GOOGLE_SERVICE_ACCOUNT_KEY_JSON = base64.b64decode(GOOGLE_SERVICE_ACCOUNT_KEY_BASE64)
 GOOGLE_SERVICE_ACCOUNT_KEY = json.loads(GOOGLE_SERVICE_ACCOUNT_KEY_JSON)
 GOOGLE_SERVICE_ACCOUNT_CONFIG = {
@@ -90,14 +84,14 @@ GOOGLE_SERVICE_ACCOUNT_CONFIG = {
 # pysheet config
 # ------------------------------------------------------------------------------
 # ref:
-GOOGLE_SPREADSHEET_KEY = os.environ.get('GOOGLE_SPREADSHEET_KEY')
+GOOGLE_SPREADSHEET_KEY = os.getenv('GOOGLE_SPREADSHEET_KEY')
 
 # redis config
 # ------------------------------------------------------------------------------
 # ref:
-REDIS_URL = os.environ.get('REDIS_URL')
+REDIS_URL = os.getenv('REDIS_URL')
 
 # SENTRY
 # ------------------------------------------------------------------------------
 # ref:
-SENTRY_DSN = os.environ.get('SENTRY_DSN')
+SENTRY_DSN = os.getenv('SENTRY_DSN')
