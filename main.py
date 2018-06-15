@@ -8,8 +8,9 @@ from threading import Timer
 import config
 import pytz
 from datastore import redis_db
+from discord import Channel
 from discord import Client as DiscordClient
-from discord import Channel, Game, Message, Reaction, Server, User
+from discord import Game, Message, Reaction, Server, User
 from google_service_account import spreadsheet
 from pygsheets import Cell
 from raven import Client as SentryClient
@@ -80,26 +81,14 @@ class SeriaBot(DiscordClient):
 
     async def on_ready(self):
         """Get server and channel from discord connection"""
-        self.discord_server = self.get_server(config.DISCORD_SERVER_ID)
-        self.discord_home_channel = self.discord_server.get_channel(config.DISCORD_HOME_CHANNEL_ID)
-        self.discord_bot_channel = self.discord_server.get_channel(config.DISCORD_BOT_CHANNEL_ID)
+        msg: str = f'賽麗雅於 {get_current_time()} 發佈囉！\n'
 
-        author = await self.get_user_info(config.DISCORD_BOT_AUTHOR_USER_ID)
-        await self.start_private_message(author)
-
-        # role log
-        content = ''
-        for role in self.discord_server.roles:
-            content += f'{role.id}: {role.name}, {role.permissions}\n'
-        await self.send_message(author, content)
-
-        # bot log
-        content = f'賽麗雅於 {get_current_time()} 發佈囉！\n'
-        content += f'連線 discord servers: {str(list(self.servers))}\n'
-        content += f'連線 discord server: {self.discord_server.name}\n'
-        content += f'連線 discord home channel: {self.discord_home_channel.name}\n'
-        content += f'連線 discord bot channel: {self.discord_bot_channel.name}'
-        await self.send_message(author, content)
+        seria_log_channel = self.get_channel(config.DISCORD_SERIA_LOG_CHANNEL_ID)
+        if seria_log_channel and self.servers:
+            msg += '目前連線的 Server 資訊如下：\n'
+            for server in self.servers:
+                msg += f'  * {server.name} owned by {server.owner.name}\n'
+            await self.send_message(seria_log_channel, msg.rstrip())
 
     async def on_error(self, event_method, *args, **kwargs):
         await super().on_error(event_method, *args, **kwargs)
