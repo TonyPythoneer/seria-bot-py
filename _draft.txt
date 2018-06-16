@@ -1,78 +1,128 @@
-class Action:
-  channels = None
-  roles  = None
+        """
+        elif content.startswith('seria anton rollcall'):
+            cmd_args = content.split(' ')
 
-  parser = Noe
+            if len(cmd_args) != 5:
+                await self.send_message(message.channel, '指令錯誤')
+                return
 
-  fields = {'weekday': {}}
+            weekday, group_number = cmd_args[3], int(cmd_args[4])
+            weekday_mapping = {
+                'wed': WorkSheetType.ANTON_RAID_WED,
+                'sat': WorkSheetType.ANTON_RAID_SAT,
+                'sun': WorkSheetType.ANTON_RAID_SUN}
+            if weekday not in weekday_mapping and not (1 <= group_number <= 16):
+                await self.send_message(message.channel, '指令錯誤')
+                return
 
-  def __init__(self, client, message):
-    self.client  = client
-    self.message = message
+            _, _, group_cell_range = config.GROUP_INFO_SEQUENCE[group_number - 1]
 
-    sef.optarg = optarg
+            msg = f'{group_number} 團該集合囉！\n\n'
+            antion_raid_worksheet = spreadsheet.worksheet_by_title(weekday_mapping[weekday])
+            group_matrix = antion_raid_worksheet.range(group_cell_range, returnas='matrix')
 
-  def add_parser(self):
-    self.parser.add()
+            for team_index, team in enumerate(group_matrix, start=1):
+                msg += f'{team_index} 隊:\n'
+                for player_with_job in team:
 
-  def parse_args(self):
-    opt, _ = self.parser.args([])
-    opt_dict = opt.__dict__
-    return opt_dict
+                    if not player_with_job:
+                        continue
 
-  def run(self, weekday, *args, **kwargs):
-    worksheet = spreadsheet.get(weekday)
-    YELLOW = (255, 255, 0, 0)
-     enabled_team_indexs = [ cellname for cell in worksheet.get_cell(...) if cell.color == YELLOW]
-    repeat_players_in_team = []
-    repeat_characters_in_groups = {}
-    for index in enabled_team_indexes:
-        cellrange = team_mapping[index]
-        team_matrix = worksheet.range(cellrange, returas='matrix')
-        characters = team_matrix.to_one_dim 降低維度
-        for character in characters:
-            playername = character.split(',', 1)[0]
-            playername
+                    prog = player_with_job_pattern.match(player_with_job)
+                    if prog is None:
+                        msg += f'{player_with_job} <-- 文字分析錯誤\n'
+                        continue
 
+                    matched_keyword_mapping = prog.groupdict()
+                    player = matched_keyword_mapping['player']
+                    job = matched_keyword_mapping['job']
+                    discord_id = roster_redis_db.hget(player, 'discord_id')
+                    character_name = roster_redis_db.hget(player, job)
 
-  def validjoin...
-    YELLOW = (255, 255, 0, 0)
-     [cell for cell in worksheet.get_cell(...) if cell.color == YELLOW]
-    worksheet
+                    member = self.discord_server.get_member(discord_id)
+                    player = member.mention if member is not None else player
 
-  def execute(self, message):
-    is_allowed_channel = check_channel(message)
-    if not is_allowed_channel:
-       return
+                    if character_name:
+                        msg += f'{character_name}({job}) cc {player}\n'
+                    else:
+                        msg += f'{character_name}({job}) cc {player} <-- 您的出戰角色於總表查無資料，請於總表修正，謝謝\n'
+                msg += '\n'
 
-    is_allowed_role = check_role(message)
-    if not is_allowed_role:
-      return
+            await self.send_message(message.channel, msg)
+            return await self.change_presence(game=Game(name=f'Anton {group_number} 團，出征！'))
+        elif content.startswith('seria status reset'):
+            await self.change_presence()
+            return
+        elif content.startswith('seria anton check'):
+            cmd_args = content.split(' ')
 
-    parsed_kwargs = self.parse_args()
-    sel.run(**parsed_kwargs)
+            if len(cmd_args) != 4:
+                return await self.send_message(message.channel, '指令錯誤')
 
-    result_dict
+            weekday = cmd_args[3]
+            weekday_mapping = {
+                'wed': WorkSheetType.ANTON_RAID_WED,
+                'sat': WorkSheetType.ANTON_RAID_SAT,
+                'sun': WorkSheetType.ANTON_RAID_SUN}
+            if weekday not in weekday_mapping:
+                return await self.send_message(message.channel, '指令錯誤')
 
-cmdgroups = {
-  anton:{
-    validsheet: ...
-    finishsheet: ...
-    listmygroup: ...
-    iamok: ...
-    callmembers: ...
-  }
-  discord: {
-    getuserid: ...
-  }
-  help: ...
-}
+            worksheet_title = weekday_mapping[weekday]
+            await self.send_message(message.channel, f'檢查 {worksheet_title} 的團表')
 
-# seria antion validsheet
-_ , parentcmd, subcmd = content.split(' ', 3)
+            antion_raid_worksheet = spreadsheet.worksheet_by_title(worksheet_title)
 
-if parentcmd not in cmdgroups:
-  return
+            YELLOW = (1, 1, 0, 0)
 
-cmd = cmdgroups[parentcmd]
-patterns_action_tuple = cmdgroups[subcmd] if isinstance(cmd, dict) else cmd
+            player_with_job_list = []
+            player_with_job_error_list = []
+            group_error_collection = {}
+            for group_number, group_number_cell_pos, group_cell_range in config.GROUP_INFO_SEQUENCE:
+
+                group_number_cell = Cell(group_number_cell_pos, worksheet=antion_raid_worksheet)
+                if group_number_cell.color != YELLOW:
+                    break
+
+                player_list = []
+                player_error_list = []
+                group = antion_raid_worksheet.range(group_cell_range, returnas='matrix')
+                for team in group:
+                    for player_with_job in team:
+
+                        if not player_with_job:
+                            continue
+
+                        if player_with_job in player_with_job_list:
+                            player_with_job_error_list.append(player_with_job)
+                        else:
+                            player_with_job_list.append(player_with_job)
+
+                        prog = player_with_job_pattern.match(player_with_job)
+                        if prog is None:
+                            continue
+
+                        matched_keyword_mapping = prog.groupdict()
+                        player = matched_keyword_mapping['player']
+
+                        if player in player_list:
+                            player_error_list.append(player)
+                        else:
+                            player_list.append(player)
+
+                    if player_error_list:
+                        group_error_collection[group_number] = player_error_list
+
+            if player_with_job_error_list or group_error_collection:
+                msg = ''
+                if player_with_job_error_list:
+                    player_with_job_error_list = ', '.join(player_with_job_error_list)
+                    msg += f'* 總表重複人物： {player_with_job_error_list}\n'
+
+                if group_error_collection:
+                    for group_number, players in group_error_collection.items():
+                        players = ', '.join(players)
+                        msg += f'* {group_number} 團表重複人物： {players}\n'
+                return await self.send_message(message.channel, msg)
+            else:
+                return await self.send_message(message.channel, '沒有任何重複安排的人員唷~！ :heart:')
+            """
