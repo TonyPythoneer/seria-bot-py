@@ -5,9 +5,9 @@ import re
 from datetime import datetime
 from threading import Timer
 
+import bot_command
 import config
 import pytz
-from bot_command import bot_command
 from discord import Client as DiscordClient
 # from constants import WorkSheetType
 # from datastore import roster_redis_db
@@ -93,12 +93,7 @@ class SeriaBot(DiscordClient):
     async def on_message(self, message: Message):
         """Listener about message"""
         await self.wait_until_ready()
-
-        content = str(message.content).lower()
-        result = bot_command.process_message(content)
-        if result is None:
-            return
-        return await self.send_message(message.channel, result)
+        await bot_command.process_message(self, message)
 
     async def on_reaction_add(self, reaction: Reaction, user: User):
         """rollcall"""
