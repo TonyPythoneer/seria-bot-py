@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
-from commands_list.roster import roster
+from bot_command.roster import roster
 
 
 class BotCommand(object):
     def __init__(self, funcs):
         self.mapping = {func.__name__: func for func in funcs}
 
-    def __call__(self, content: str):
-        if content.startswith('seria'):
+    def process_message(self, message: str):
+        if message.startswith('seria'):
             # full command process
             # 'seria anton 1' -> ['anton', '1']
-            args = content.split(' ')[1:]
-        if content.startswith('!'):
+            args = message.split(' ')[1:]
+        elif message.startswith('!'):
             # short command process
             # '!anton 1' -> ['anton', '1']
-            args = content[1:].split(' ')
+            args = message[1:].split(' ')
         else:
             return
 
@@ -25,7 +25,7 @@ class BotCommand(object):
         func = self.mapping.get(cmd_namespace)
         if func is None:
             return
-        result = func(**cmd_args)
+        result = func(*cmd_args)
         return result
 
 

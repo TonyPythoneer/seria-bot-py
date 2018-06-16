@@ -24,3 +24,4 @@ def roster(*args):
                 'jobs': {char_job: char_name for char_name, char_job in sub_df.values}}
             pipe.hmset(player_name, mapping)
         pipe.execute()
+    return '紀錄總表完成'
