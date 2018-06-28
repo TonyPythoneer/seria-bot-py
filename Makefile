@@ -2,7 +2,7 @@
 
 .PHONY: venv
 venv:
-	python3 -m venv ./.venv
+	python3.6 -m venv ./.venv
 
 .PHONY: run
 run:
