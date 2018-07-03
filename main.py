@@ -7,7 +7,7 @@ import config
 import pytz
 from datastore import redis_db
 from discord import Client as DiscordClient
-from discord import Game, Message
+from discord import Game, Message, Server
 from google_service_account import spreadsheet
 from pygsheets import Cell
 from raven import Client as SentryClient
@@ -21,6 +21,11 @@ sentry_client = SentryClient(config.SENTRY_DSN, transport=AioHttpTransport)
 
 
 class SeriaBot(DiscordClient):
+    discord_server: Server = None
+
+    async def on_ready(self):
+        """Get server and channel from discord connection"""
+        self.discord_server = self.get_server(config.DISCORD_SERVER_ID)
 
     async def on_error(self, event_method, *args, **kwargs):
         await super().on_error(event_method, *args, **kwargs)
