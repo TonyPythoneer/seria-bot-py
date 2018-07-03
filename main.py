@@ -2,104 +2,25 @@
 
 import asyncio
 import re
-from datetime import datetime
-from threading import Timer
 
 import config
 import pytz
 from datastore import redis_db
 from discord import Client as DiscordClient
-from discord import Channel, Game, Message, Reaction, Server, User
+from discord import Game, Message
 from google_service_account import spreadsheet
 from pygsheets import Cell
 from raven import Client as SentryClient
 from raven_aiohttp import AioHttpTransport
 
 TZINFO = pytz.timezone('Asia/Taipei')
-'''
-VALIDSHEET_PATTERN = re.compile(r'^seria anton validsheet (?P<weekday>wed|sat|sun)$')
-FINISHSHHET_PATTERN = re.compile(r'^seria anton finishsheet (?P<weekday>wed|sat|sun)$')
-LISTMYGROUP_PATTERN = re.compile(r'^seria anton listmygroup (?P<weekday>wed|sat|sun)$')
-IAMOK_PATTERN = re.compile(r'^seria anton iamok (?P<weekday>wed|sat|sun) (?P<number>[0-9]{1,2}) (?P<category>[A-B])$')
-IAMOK_PATTERN = re.compile(r'^seria anton callmembers (?P<number>[0-9]{1,2}) (?P<category>[A-B])$')
-'''
-
-'''
-seria anton listmygroup {wed|sat|sun:required}
-seria anton iamok {wed|sat|sun:required} {number:optional}
-seria anton iamnotok {wed|sat|sun:required} {number:optional}
-seria anton callmembers {number:required}
-seria discord getuserid {@someone:optional}
-'''
-
-'''
-m = LISTMYGROUP_PATTERN.match('seria anton listmygroup sat')
-m.groupdict()
-seria anton listmygroup
-
-IAMOK_PATTERN.match('seria anton iamok sat')
-'''
-
-
-REGIONAL_INDICATOR_A = u'\U0001F1E6'
-REGIONAL_INDICATOR_B = u'\U0001F1E7'
-
 
 player_with_job_pattern = re.compile('(?P<player>.*)\((?P<job>.*)\)')
 
 sentry_client = SentryClient(config.SENTRY_DSN, transport=AioHttpTransport)
 
 
-def defered_threading(seconds: float=0):
-    """delay func running"""
-    def wrapped_func(func):
-        """Put a defered function as ``delay`` into function"""
-        def launcher(*args, **kwargs):
-            timer = Timer(seconds, func, args=args, kwargs=kwargs)
-            timer.start()
-        func.delay = launcher
-        return func
-    return wrapped_func
-
-
-def test(message: Message):
-    pass
-
-
-def get_current_time():
-    dt = datetime.now(pytz.timezone('Asia/Taipei'))
-    dt_str = dt.strftime('%Y-%m-%d %H:%M:%S')
-    return dt_str
-
-
 class SeriaBot(DiscordClient):
-
-    discord_server: Server = None
-    discord_home_channel: Channel = None
-    discord_bot_channel: Channel = None
-
-    async def on_ready(self):
-        """Get server and channel from discord connection"""
-        self.discord_server = self.get_server(config.DISCORD_SERVER_ID)
-        self.discord_home_channel = self.discord_server.get_channel(config.DISCORD_HOME_CHANNEL_ID)
-        self.discord_bot_channel = self.discord_server.get_channel(config.DISCORD_BOT_CHANNEL_ID)
-
-        author = await self.get_user_info(config.DISCORD_BOT_AUTHOR_USER_ID)
-        await self.start_private_message(author)
-
-        # role log
-        content = ''
-        for role in self.discord_server.roles:
-            content += f'{role.id}: {role.name}, {role.permissions}\n'
-        await self.send_message(author, content)
-
-        # bot log
-        content = f'賽麗雅於 {get_current_time()} 發佈囉！\n'
-        content += f'連線 discord servers: {str(list(self.servers))}\n'
-        content += f'連線 discord server: {self.discord_server.name}\n'
-        content += f'連線 discord home channel: {self.discord_home_channel.name}\n'
-        content += f'連線 discord bot channel: {self.discord_bot_channel.name}'
-        await self.send_message(author, content)
 
     async def on_error(self, event_method, *args, **kwargs):
         await super().on_error(event_method, *args, **kwargs)
@@ -195,8 +116,6 @@ class SeriaBot(DiscordClient):
         elif content.startswith('seria status reset'):
             await self.change_presence()
             return
-        elif content.startswith('seria error test'):
-            1 / 0
         elif content.startswith('seria anton check'):
             cmd_args = content.split(' ')
 
@@ -256,53 +175,6 @@ class SeriaBot(DiscordClient):
                     if player_error_list:
                         group_error_collection[group_number] = player_error_list
 
-            """
-            YELLOW = (1, 1, 0, 0)
-            available_group_list = []
-            for group_number, group_number_cell_pos, group_cell_range in config.GROUP_INFO_SEQUENCE:
-                group_number_cell = Cell(group_number_cell_pos, worksheet=antion_raid_worksheet)
-                if group_number_cell.color != YELLOW:
-                    break
-                available_group_list.append((group_number, group_cell_range))
-
-            pool = ThreadPool()
-            def covert(arguments):
-                group_number, group_cell_range = arguments
-                group = antion_raid_worksheet.range(group_cell_range, returnas='matrix')
-                player_with_job_list = list(chain.from_iterable(group))
-                return (group_number, player_with_job_list)
-            available_group_list = pool.map(covert, available_group_list)
-            pool.join()
-
-            player_with_job_list = []
-            player_with_job_error_list = []
-            group_error_collection = {}
-            for group_number, player_with_job_list in available_group_list:
-                player_list = []
-                player_error_list = []
-                for player_with_job in player_with_job_list:
-                    if player_with_job in player_with_job_list:
-                        player_with_job_error_list.append(player_with_job)
-                    else:
-                        player_with_job_list.append(player_with_job)
-
-                    prog = player_with_job_pattern.match(player_with_job)
-                    if prog is None:
-                        continue
-
-                    matched_keyword_mapping = prog.groupdict()
-                    player = matched_keyword_mapping['player']
-
-                    if player in player_list:
-                        player_error_list.append(player)
-                    else:
-                        player_list.append(player)
-
-                if player_error_list:
-                    group_error_collection[group_number] = player_error_collection
-
-            """
-
             if player_with_job_error_list or group_error_collection:
                 msg = ''
                 if player_with_job_error_list:
@@ -316,88 +188,6 @@ class SeriaBot(DiscordClient):
                 return await self.send_message(message.channel, msg)
             else:
                 return await self.send_message(message.channel, '沒有任何重複安排的人員唷~！ :heart:')
-
-        """
-        # X
-        if content.startswith('seria test'):
-            main_server = self.get_server(config.DISCORD_SERVER_ID)
-            await self.send_message(message.channel, f'Hello {main_server}!')
-        # O
-        elif content.startswith('seria changestatus'):
-            int_ = randint(1, 10)
-            game = Game(name=f'I am Seria {int_}')
-            await self.change_presence(game=game)
-        # X
-        elif content.startswith('seria mention'):
-            list_ = content.split(' ')
-            try:
-                userid = int(list_[2])
-            except IndexError:
-                userid = None
-
-            if userid is not None:
-                server = self.get_server(240128672940556288)
-                member = self.main_server.get_member(userid)
-                await self.send_message(message.channel, f'From server {server.id}')
-            else:
-                member = message.author
-                typed_obj = type(member.id)
-                server = getattr(message, 'server', None)
-                await self.send_message(message.channel, f'The msg is {dir(message)}')
-                await self.send_message(message.channel, f'The server is {server}')
-                await self.send_message(message.channel, f'This id type is {typed_obj.__name__}')
-            mention = member.mention
-            await self.send_message(message.channel, f'Hi, {mention}')
-        # O
-        elif content.startswith('seria getmyid'):
-            id_ = message.author.id
-            await self.send_message(message.channel, f'Your id is {id_}')
-            '''
-            elif content.startswith('seria emoji'):
-                msg = await self.send_message(message.channel, 'React with thumbs up or thumbs down.')
-                res = await self.wait_for_reaction([REGIONAL_INDICATOR_A, REGIONAL_INDICATOR_B], message=msg, timeout=5)  # obj type: WaitedReaction
-                await self.send_message(message.channel, str(res))
-                if res is not None:
-                    await self.send_message(message.channel, '{0.user} reacted with {0.reaction.emoji}!'.format(res))
-            '''
-        elif content.startswith('seria timenow'):
-            now = datetime.now(pytz.timezone('Asia/Taipei'))
-            await self.send_message(message.channel, f'Now is {str(now)}')
-        elif content.startswith('seria timeremoji'):
-            bot_message = await self.send_message(message.channel, u'請按表情符號...10秒後結算')
-            await asyncio.sleep(10)
-            bot_message = await self.get_message(self.discord_bot_channel, bot_message.id)
-
-            reaction_list = []
-            reactions = bot_message.reactions
-            for reaction in reactions:
-                try:
-                    fut = self.get_reaction_users(reaction)
-                    users = await asyncio.wait_for(fut, timeout=5)  # Fuck! This lib is pure python3.5 syntax, not compatible with 3.6
-                except asyncio.TimeoutError:
-                    continue
-                else:
-                    print(users)
-                    reaction_list.append({reaction.emoji: users})
-
-            await self.send_message(bot_message.channel, str(reaction_list))
-        elif content.startswith('seria listmember'):
-            members = self.discord_server.members
-            print(members)
-            member_info_list = tuple(map(lambda member: f'{member.display_name}: {member.id}', members))
-            reply = '\n'.join(member_info_list)
-            print(member_info_list)
-            await self.send_message(message.channel, str(reply))
-
-        """
-
-    async def on_reaction_add(self, reaction: Reaction, user: User):
-        """rollcall"""
-        pass
-        """
-        message = reaction.message
-        await self.send_message(message.channel, '{} reacted with {}!'.format(user, reaction.emoji))
-        """
 
 
 async def main():
